@@ -11,6 +11,11 @@ const authMiddleware = require("./middleware/authMiddleware");
 app.use(cors());
 app.use(express.json());
 
+//CRUD product
+const productRoutes = require("./routes/products");
+
+app.use("/api/products", productRoutes);
+
 // routes
 app.use("/api/auth", authRoutes);
 
