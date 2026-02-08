@@ -3,12 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 
-// =================================================================
-// KONFIGURASI IP (WAJIB DIGANTI JIKA PINDAH KOMPUTER/WIFI)
-// Ganti '192.168.100.235' dengan IP Address komputer Anda.
-// Cara cek IP di Windows: Buka cmd, ketik 'ipconfig', lihat IPv4 Address.
-// =================================================================
-const BASE_URL = 'http://192.168.100.235:5001/api';
+
+const BASE_URL = "https://backend-marketplace-8hil.onrender.com/api";
 
 const api = axios.create({
     baseURL: BASE_URL,

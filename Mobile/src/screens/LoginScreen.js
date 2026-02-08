@@ -19,13 +19,12 @@ export default function LoginScreen({ navigation }) {
 
         setLoading(true);
         try {
-            // MOCK LOGIN for Standalone Mode
-            // const response = await api.post('/auth/login', { email, password });
+            const response = await api.post('/auth/login', { email, password });
 
-            // Dummy Data
-            const token = "dummy-token-12345";
-            const user = { name: "User Demo", email: email };
+            // Get token and user data from response
+            const { token, user } = response.data;
 
+            // Save to AsyncStorage
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('user', JSON.stringify(user));
 
@@ -35,7 +34,9 @@ export default function LoginScreen({ navigation }) {
                 routes: [{ name: 'ProductList' }],
             });
         } catch (error) {
-            Alert.alert('Error', 'Login gagal');
+            console.error('Login error:', error);
+            const errorMessage = error.response?.data?.message || 'Login gagal. Periksa email dan password Anda.';
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -73,6 +74,7 @@ export default function LoginScreen({ navigation }) {
                                 onChangeText={setEmail}
                                 autoCapitalize="none"
                                 keyboardType="email-address"
+                                editable={!loading}
                             />
                         </View>
 
@@ -87,17 +89,16 @@ export default function LoginScreen({ navigation }) {
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry={!showPassword}
+                                editable={!loading}
                             />
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#ccc" />
                             </TouchableOpacity>
                         </View>
 
-
-
                         {/* Button */}
                         <TouchableOpacity
-                            style={styles.button}
+                            style={[styles.button, loading && styles.buttonDisabled]}
                             onPress={handleLogin}
                             disabled={loading}
                         >
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
-        padding: 24, // Increased padding to match screenshot
+        padding: 24,
     },
     backButton: {
         width: 44,
@@ -141,14 +142,14 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     title: {
-        fontSize: 36, // Larger font
+        fontSize: 36,
         fontWeight: 'bold',
         color: '#000',
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: '#9CA3AF', // Lighter gray
+        color: '#9CA3AF',
     },
     form: {
         flex: 1,
@@ -163,9 +164,9 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1.5, // Slightly thicker
-        borderColor: '#E5E7EB', // Tailwind gray-200
-        borderRadius: 30, // Fully rounded
+        borderWidth: 1.5,
+        borderColor: '#E5E7EB',
+        borderRadius: 30,
         paddingHorizontal: 20,
         paddingVertical: 14,
         backgroundColor: '#fff',
@@ -178,28 +179,22 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#000',
     },
-    errorText: {
-        color: '#EF4444', // Red
-        fontSize: 14,
-        marginTop: 8,
-    },
     button: {
-        backgroundColor: 'black', // Changed to black per request
+        backgroundColor: 'black',
         borderRadius: 30,
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 40,
         marginBottom: 24,
     },
+    buttonDisabled: {
+        opacity: 0.6,
+    },
     buttonText: {
-        color: 'white', // Changed to white for contrast
+        color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
     },
-    // Override button for active state if I were implementing validation
-    // buttonActive: { backgroundColor: 'black' }
-    // buttonTextActive: { color: 'white' }
-
     footer: {
         flexDirection: 'row',
         justifyContent: 'center',

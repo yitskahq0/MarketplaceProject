@@ -8,30 +8,28 @@ import { Ionicons } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - 48) / 2;
 
-import { dummyProducts } from '../data/dummyProducts';
-
 export default function ProductListScreen({ navigation }) {
-    const [products, setProducts] = useState(dummyProducts); // Use dummy data initially
-    const [loading, setLoading] = useState(false);
+    const [products, setProducts] = useState([]); 
+    const [loading, setLoading] = useState(true); 
     const [user, setUser] = useState({ name: 'Pengguna' });
 
     useEffect(() => {
-        // fetchProducts(); // Disabled for Standalone Mode
+        fetchProducts(); // Enable API fetch
         getUserData();
     }, []);
 
-    /* 
     const fetchProducts = async () => {
         try {
+            setLoading(true);
             const response = await api.get('/products');
             setProducts(response.data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching products:', error);
+            // Optional: Show error message to user
         } finally {
             setLoading(false);
         }
     };
-    */
 
     const getUserData = async () => {
         try {
@@ -41,7 +39,7 @@ export default function ProductListScreen({ navigation }) {
                 setUser(parsedUser);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching user data:', error);
         }
     };
 
@@ -62,7 +60,6 @@ export default function ProductListScreen({ navigation }) {
                         <Ionicons name="image-outline" size={40} color="#ccc" />
                     </View>
                 )}
-
             </View>
 
             {/* Content */}
@@ -80,11 +77,13 @@ export default function ProductListScreen({ navigation }) {
         </TouchableOpacity>
     );
 
-    if (loading) return (
-        <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#000" />
-        </View>
-    );
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
+    }
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -97,13 +96,20 @@ export default function ProductListScreen({ navigation }) {
                     <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Cart')}>
-                    {/* Cart icon */}
                     <Ionicons name="cart-outline" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconButton}>
                     <Ionicons name="notifications-outline" size={24} color="black" />
                 </TouchableOpacity>
             </View>
+        </View>
+    );
+
+    // Handle empty state
+    const renderEmptyComponent = () => (
+        <View style={styles.emptyContainer}>
+            <Ionicons name="cube-outline" size={60} color="#ccc" />
+            <Text style={styles.emptyText}>Belum ada produk</Text>
         </View>
     );
 
@@ -114,8 +120,9 @@ export default function ProductListScreen({ navigation }) {
                 keyExtractor={(item) => item._id}
                 renderItem={renderItem}
                 ListHeaderComponent={renderHeader}
+                ListEmptyComponent={renderEmptyComponent}
                 numColumns={2}
-                columnWrapperStyle={styles.row}
+                columnWrapperStyle={products.length > 0 ? styles.row : null}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             />
@@ -132,6 +139,23 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 20,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+    },
+    emptyText: {
+        marginTop: 15,
+        fontSize: 16,
+        color: '#888',
     },
     header: {
         flexDirection: 'row',
@@ -159,48 +183,40 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     card: {
-        width: '48%', // Slightly less than 50% to account for space
+        width: '48%',
         backgroundColor: '#fff',
         marginBottom: 20,
         borderRadius: 15,
-        padding: 8, // Create "layer" frame effect
-        elevation: 3, // Android shadow
-        shadowColor: '#000', // iOS shadow
+        padding: 8,
+        elevation: 3,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
     },
     imageContainer: {
         position: 'relative',
-        borderRadius: 10, // Adjusted radius to fit inside card
+        borderRadius: 10,
         overflow: 'hidden',
         marginBottom: 10,
     },
     image: {
         width: '100%',
-        height: 150, // Fixed height for uniformity
+        height: 150,
         resizeMode: 'cover',
     },
-    heartIcon: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        backgroundColor: 'rgba(255,255,255,0.8)',
-        borderRadius: 15,
-        padding: 5,
-    },
-    info: {
+    cardContent: {
         paddingHorizontal: 5,
     },
-    name: {
+    productName: {
         fontSize: 16,
-        fontWeight: '600', // Semi-bold
+        fontWeight: '600',
         color: '#000',
         marginBottom: 5,
     },
-    price: {
+    productPrice: {
         fontSize: 14,
-        color: '#888', // Grayish price as per screenshot "Rp.1M" style
+        color: '#888',
         fontWeight: '500',
     },
 });

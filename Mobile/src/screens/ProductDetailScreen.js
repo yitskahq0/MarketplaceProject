@@ -7,8 +7,6 @@ const { width, height } = Dimensions.get('window');
 
 import { useCart } from '../context/CartContext';
 
-import { dummyProducts } from '../data/dummyProducts';
-
 export default function ProductDetailScreen({ route, navigation }) {
     const { productId } = route.params;
     const [product, setProduct] = useState(null);
@@ -16,34 +14,48 @@ export default function ProductDetailScreen({ route, navigation }) {
     const { addToCart } = useCart();
 
     useEffect(() => {
-        // fetchProduct(); // Disabled for Standalone Mode
-        const foundProduct = dummyProducts.find(p => p._id === productId || p.id === productId);
-        if (foundProduct) {
-            setProduct(foundProduct);
-        }
-        setLoading(false);
+        fetchProduct();
     }, [productId]);
 
-    /*
     const fetchProduct = async () => {
         try {
+            setLoading(true);
             const response = await api.get(`/products/${productId}`);
             setProduct(response.data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching product:', error);
         } finally {
             setLoading(false);
         }
     };
-    */
 
     const handleAddToCart = () => {
         addToCart(product);
         navigation.navigate('Cart');
     };
 
-    if (loading) return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center' }} />;
-    if (!product) return <Text style={{ textAlign: 'center', marginTop: 20 }}>Produk tidak ditemukan</Text>;
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
+    }
+
+    if (!product) {
+        return (
+            <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle-outline" size={60} color="#ccc" />
+                <Text style={styles.errorText}>Produk tidak ditemukan</Text>
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={() => navigation.goBack()}
+                >
+                    <Text style={styles.backButtonText}>Kembali</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -65,7 +77,6 @@ export default function ProductDetailScreen({ route, navigation }) {
                         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
                             <Ionicons name="arrow-back" size={24} color="black" />
                         </TouchableOpacity>
-
                     </View>
                 </View>
 
@@ -124,6 +135,37 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        paddingHorizontal: 40,
+    },
+    errorText: {
+        marginTop: 15,
+        fontSize: 16,
+        color: '#888',
+        textAlign: 'center',
+    },
+    backButton: {
+        marginTop: 20,
+        paddingHorizontal: 30,
+        paddingVertical: 12,
+        backgroundColor: '#000',
+        borderRadius: 25,
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
     scrollContent: {
         paddingBottom: 20,
@@ -226,7 +268,7 @@ const styles = StyleSheet.create({
         paddingBottom: Platform.OS === 'ios' ? 30 : 20,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', // Changed to space-between to push cart button to right
+        justifyContent: 'space-between',
         borderTopWidth: 1,
         borderTopColor: '#f0f0f0',
         shadowColor: "#000",
@@ -241,7 +283,7 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F3F4F6', // Light gray pill background
+        backgroundColor: '#F3F4F6',
         borderRadius: 30,
         paddingHorizontal: 5,
         paddingVertical: 5,
@@ -252,7 +294,7 @@ const styles = StyleSheet.create({
         height: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'black', // Black circle
+        backgroundColor: 'black',
         borderRadius: 20,
     },
     qtyText: {

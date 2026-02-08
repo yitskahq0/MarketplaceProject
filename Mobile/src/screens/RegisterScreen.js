@@ -17,20 +17,30 @@ export default function RegisterScreen({ navigation }) {
             return;
         }
 
+        // Simple email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Alert.alert('Error', 'Format email tidak valid');
+            return;
+        }
+
+        // Password length validation
+        if (password.length < 6) {
+            Alert.alert('Error', 'Password minimal 6 karakter');
+            return;
+        }
+
         setLoading(true);
         try {
-            // MOCK REGISTER for Standalone Mode
-            // await api.post('/auth/register', { name, email, password });
-
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await api.post('/auth/register', { name, email, password });
 
             Alert.alert('Sukses', 'Registrasi berhasil! Silakan login', [
                 { text: 'OK', onPress: () => navigation.navigate('Login') }
             ]);
         } catch (error) {
-            console.error("Register Error:", error);
-            Alert.alert('Error', 'Registrasi gagal');
+            console.error('Register Error:', error);
+            const errorMessage = error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.';
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -68,6 +78,7 @@ export default function RegisterScreen({ navigation }) {
                                 onChangeText={setEmail}
                                 autoCapitalize="none"
                                 keyboardType="email-address"
+                                editable={!loading}
                             />
                         </View>
 
@@ -81,6 +92,7 @@ export default function RegisterScreen({ navigation }) {
                                 placeholderTextColor="#ccc"
                                 value={name}
                                 onChangeText={setName}
+                                editable={!loading}
                             />
                         </View>
 
@@ -95,6 +107,7 @@ export default function RegisterScreen({ navigation }) {
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry={!showPassword}
+                                editable={!loading}
                             />
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#ccc" />
@@ -103,7 +116,7 @@ export default function RegisterScreen({ navigation }) {
 
                         {/* Button */}
                         <TouchableOpacity
-                            style={styles.button}
+                            style={[styles.button, loading && styles.buttonDisabled]}
                             onPress={handleRegister}
                             disabled={loading}
                         >
@@ -147,7 +160,7 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     title: {
-        fontSize: 32, // Bold title matching "Mari bergabung!"
+        fontSize: 32,
         fontWeight: 'bold',
         color: '#000',
         marginBottom: 8,
@@ -186,12 +199,15 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     button: {
-        backgroundColor: 'black', // Changed to black per request
+        backgroundColor: 'black',
         borderRadius: 30,
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 40,
         marginBottom: 20,
+    },
+    buttonDisabled: {
+        opacity: 0.6,
     },
     buttonText: {
         color: 'white',
