@@ -17,7 +17,8 @@ const Register = () => {
         setError('');
         try {
             await register(name, email, password);
-            navigate('/login');
+            alert("Registrasi berhasil! Silakan login.");
+            navigate("/login");
         } catch (err) {
             setError(err.response?.data?.message || 'Registrasi gagal');
         }

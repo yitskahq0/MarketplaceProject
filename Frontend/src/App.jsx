@@ -7,6 +7,7 @@ import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import AdminProducts from "./pages/AdminProducts";
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/admin" element={<AdminProducts />} />
           </Routes>
         </main>
         <footer className="bg-gray-800 text-white text-center py-4 mt-auto">
